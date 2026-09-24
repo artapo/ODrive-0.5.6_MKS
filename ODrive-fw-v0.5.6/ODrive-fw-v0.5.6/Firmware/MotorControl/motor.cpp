@@ -310,6 +310,11 @@ bool Motor::apply_config() {
 
 // @brief Set up the gate drivers
 bool Motor::setup() {
+#ifdef MKS_ODRIVE_S
+    // MKS ODrive S has no M1 DRV8301: never talk to it (boot, idle-loop retry)
+    if (this == &motors[1])
+        return false;
+#endif
     fet_thermistor_.update();
     motor_thermistor_.update();
 
@@ -345,6 +350,10 @@ void Motor::disarm_with_error(Motor::Error error){
 }
 
 bool Motor::do_checks(uint32_t timestamp) {
+#ifdef MKS_ODRIVE_S
+    if (this == &motors[1])
+        return true; // no M1 power stage: nothing to check (axis1 is never armed, see main.cpp)
+#endif
     gate_driver_.do_checks();
 
     if (!gate_driver_.is_ready()) {

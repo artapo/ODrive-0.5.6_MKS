@@ -563,9 +563,13 @@ static void rtos_main(void*) {
     // converge. If the DRV chip is unpowered, the motor will not become ready
     // but we still enter idle state.
     for (size_t i = 0; i < 2000; ++i) {
+#ifdef MKS_ODRIVE_S
+        bool motors_ready = axes[0].motor_.current_meas_.has_value();
+#else
         bool motors_ready = std::all_of(axes.begin(), axes.end(), [](auto& axis) {
             return axis.motor_.current_meas_.has_value();
         });
+#endif
         if (motors_ready) {
             break;
         }
@@ -579,9 +583,14 @@ static void rtos_main(void*) {
     // Start state machine threads. Each thread will go through various calibration
     // procedures and then run the actual controller loops.
     // TODO: generalize for AXIS_COUNT != 2
+#ifdef MKS_ODRIVE_S
+    // No M1 power stage: axis1's state machine never runs, so it can never be armed
+    axes[0].start_thread();
+#else
     for (size_t i = 0; i < AXIS_COUNT; ++i) {
         axes[i].start_thread();
     }
+#endif
 
     odrv.system_stats_.fully_booted = true;
 
