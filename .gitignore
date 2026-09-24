@@ -1,0 +1,9 @@
+# Makerbase reference repo (own git clone of makerbase-mks/ODrive-MKS): schematics, datasheets, MKS 0.5.1 fork
+ODrive-MKS/
+
+# Firmware binaries: regenerate with tools/build.sh <board>
+builds/
+
+# The upstream release zip only ships Git LFS pointers for these (real binaries live on ODrive's LFS server);
+# committing them makes git-lfs try to push objects that don't exist. Use the pip odrivetool instead.
+ODrive-fw-v0.5.6/ODrive-fw-v0.5.6/tools/odrive/pyfibre/fibre/libfibre-*
