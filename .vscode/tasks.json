@@ -1,0 +1,39 @@
+{
+    "version": "2.0.0",
+    "options": {
+        "shell": { "executable": "C:\\Program Files\\Git\\bin\\bash.exe", "args": ["-c"] }
+    },
+    "tasks": [
+        {
+            "label": "ODrive: build",
+            "type": "shell",
+            "command": "./tools/build.sh ${input:board}",
+            "group": { "kind": "build", "isDefault": true },
+            "problemMatcher": {
+                "base": "$gcc",
+                "fileLocation": ["relative", "${workspaceFolder}/ODrive-fw-v0.5.6/ODrive-fw-v0.5.6/Firmware"]
+            }
+        },
+        {
+            "label": "ODrive: flash (USB DFU)",
+            "type": "shell",
+            "command": "./tools/flash.sh ${input:board}",
+            "problemMatcher": []
+        },
+        {
+            "label": "ODrive: build + flash",
+            "dependsOn": ["ODrive: build", "ODrive: flash (USB DFU)"],
+            "dependsOrder": "sequence",
+            "problemMatcher": []
+        }
+    ],
+    "inputs": [
+        {
+            "id": "board",
+            "type": "pickString",
+            "description": "Board",
+            "options": ["v3.6-56V-MKS-S", "v3.6-56V", "v3.6-24V"],
+            "default": "v3.6-56V-MKS-S"
+        }
+    ]
+}
