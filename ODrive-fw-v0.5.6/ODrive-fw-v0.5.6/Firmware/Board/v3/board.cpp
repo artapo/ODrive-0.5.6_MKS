@@ -276,16 +276,13 @@ void system_init() {
     // Configure the system clock
     SystemClock_Config();
 
-    // If the OTP is pristine, use the fake-otp in RAM instead
+    // If the OTP is pristine, use the fake-otp in RAM instead.
+    // If the OTP has been programmed but doesn't match this firmware's target
+    // board (e.g. MKS clones without factory OTP), also fall back to fake_otp
+    // so the board boots instead of hanging indefinitely.
     const uint8_t* otp_ptr = (const uint8_t*)FLASH_OTP_BASE;
-    if (*otp_ptr == 0xff) {
+    if (*otp_ptr == 0xff || !check_board_version(otp_ptr)) {
         otp_ptr = fake_otp;
-    }
-
-    // Ensure that the board version for which this firmware is compiled matches
-    // the board we're running on.
-    if (!check_board_version(otp_ptr)) {
-        for (;;);
     }
 }
 
