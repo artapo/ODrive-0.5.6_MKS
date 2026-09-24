@@ -13,7 +13,7 @@ cd "$FW"
 [ -f tup.config ] || cp tup.config.default tup.config   # tup.config is gitignored upstream
 mkdir -p build/obj autogen                               # ditto; tup won't create them
 sed -i "s/^#\?CONFIG_BOARD_VERSION=.*/CONFIG_BOARD_VERSION=$BOARD/" tup.config
-tup --no-environ-check
+tup --no-environ-check || tup --no-environ-check   # retry once: Windows file locks on .tup/tmp fail jobs intermittently
 
 mkdir -p "$ROOT/builds"
 for ext in bin hex elf; do
