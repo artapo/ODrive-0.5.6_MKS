@@ -25,3 +25,9 @@ DFU switch on, power-cycle, then `tools/flash.sh <board>`. Saved configuration (
 - `Board/v3/board.cpp`: boot with fake OTP when the OTP board version doesn't match (MKS boards would hang).
 - `v3.6-56V-MKS-S` board (`-DMKS_ODRIVE_S`): only the M0 power stage exists; axis1 is never set up, checked or armed.
 - `Firmware/autogen/version.c` is committed (its generator is disabled); it must keep reporting 0.5.6 for odrivetool.
+
+## License
+
+- Changes and scripts in this repository: MIT, see [LICENSE](LICENSE).
+- ODrive firmware (`ODrive-fw-v0.5.6/`): MIT, © ODrive Robotics / Oskar Weigl, see its [LICENSE.md](ODrive-fw-v0.5.6/ODrive-fw-v0.5.6/LICENSE.md). Bundled third-party code (FreeRTOS, STM32 HAL, CMSIS, ...) keeps its own license headers.
+- `tools/dfu-util-static.exe`: dfu-util 0.11, **GPL-2.0**, unmodified. License and corresponding source in [tools/dfu-util-src/](tools/dfu-util-src/); it statically links libusb (LGPL-2.1, https://github.com/libusb/libusb).
