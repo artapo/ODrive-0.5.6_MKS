@@ -18,6 +18,8 @@ Output: `builds/ODrive-fw-v0.5.6-<board>.{bin,hex,elf}`. In VS Code: `Ctrl+Shift
 
 ## Flash (USB DFU)
 
+Needs dfu-util, not included: download `dfu-util-0.11-binaries` from https://dfu-util.sourceforge.net/releases/ and copy `win64/dfu-util-static.exe` to `tools/`. On Windows the STM32 bootloader may also need the WinUSB driver (Zadig).
+
 DFU switch on, power-cycle, then `tools/flash.sh <board>`. Saved configuration (NVM) is preserved.
 
 ## Changes vs official ODrive fw-v0.5.6
@@ -30,4 +32,3 @@ DFU switch on, power-cycle, then `tools/flash.sh <board>`. Saved configuration (
 
 - Changes and scripts in this repository: MIT, see [LICENSE](LICENSE).
 - ODrive firmware (`ODrive-fw-v0.5.6/`): MIT, © ODrive Robotics / Oskar Weigl, see its [LICENSE.md](ODrive-fw-v0.5.6/ODrive-fw-v0.5.6/LICENSE.md). Bundled third-party code (FreeRTOS, STM32 HAL, CMSIS, ...) keeps its own license headers.
-- `tools/dfu-util-static.exe`: dfu-util 0.11, **GPL-2.0**, unmodified. License and corresponding source in [tools/dfu-util-src/](tools/dfu-util-src/); it statically links libusb (LGPL-2.1, https://github.com/libusb/libusb).

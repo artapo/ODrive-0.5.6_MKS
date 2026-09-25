@@ -9,7 +9,7 @@ DFU="$ROOT/tools/dfu-util-static.exe"
 [ -x "$DFU" ] || DFU="$ROOT/tools/dfu-util.exe"
 BIN="$ROOT/builds/ODrive-fw-v0.5.6-${1:-v3.6-56V-MKS-S}.bin"
 
-[ -x "$DFU" ] || { echo "dfu-util not found: copy dfu-util-static.exe to tools/"; exit 1; }
+[ -x "$DFU" ] || { echo "dfu-util not found: download dfu-util-0.11-binaries (https://dfu-util.sourceforge.net/releases/) and copy dfu-util-static.exe to tools/"; exit 1; }
 [ -f "$BIN" ] || { echo "no firmware: run tools/build.sh first"; exit 1; }
 
 # 0483:df11 = STM32 system bootloader

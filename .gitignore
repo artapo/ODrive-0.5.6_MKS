@@ -7,3 +7,7 @@ builds/
 # The upstream release zip only ships Git LFS pointers for these (real binaries live on ODrive's LFS server);
 # committing them makes git-lfs try to push objects that don't exist. Use the pip odrivetool instead.
 ODrive-fw-v0.5.6/ODrive-fw-v0.5.6/tools/odrive/pyfibre/fibre/libfibre-*
+
+# dfu-util (GPL-2.0) is not redistributed here: download it into tools/ yourself (see README)
+tools/dfu-util*.exe
+tools/dfu-util-src/
