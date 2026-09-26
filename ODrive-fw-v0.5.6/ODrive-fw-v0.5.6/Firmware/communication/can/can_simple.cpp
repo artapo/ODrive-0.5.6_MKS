@@ -175,6 +175,10 @@ void CANSimple::do_command(Axis& axis, const can_Message_t& msg) {
             if (msg.rtr || msg.len == 0)
                 get_identity_callback(axis);
             break;
+        case MSG_GET_TEMPERATURE:
+            if (msg.rtr || msg.len == 0)
+                get_temperature_callback(axis);
+            break;
         default:
             break;
     }
@@ -297,6 +301,21 @@ bool CANSimple::get_identity_callback(const Axis& axis) {
 
     can_setSignal<uint64_t>(txmsg, serial_number, 0, 48, true);
     can_setSignal<uint16_t>(txmsg, XDRIVE_CAN_VERSION, 48, 16, true);
+
+    return canbus_->send_message(txmsg);
+}
+
+bool CANSimple::get_temperature_callback(const Axis& axis) {
+    can_Message_t txmsg;
+    txmsg.id = axis.config_.can.node_id << NUM_CMD_ID_BITS;
+    txmsg.id += MSG_GET_TEMPERATURE;
+    txmsg.isExt = axis.config_.can.is_extended;
+    txmsg.len = 8;
+
+    const auto& motor_thermistor = axis.motor_.motor_thermistor_;
+    float motor_temp = motor_thermistor.config_.enabled ? motor_thermistor.temperature_ : NAN;
+    can_setSignal<float>(txmsg, axis.motor_.fet_thermistor_.temperature_, 0, 32, true);
+    can_setSignal<float>(txmsg, motor_temp, 32, 32, true);
 
     return canbus_->send_message(txmsg);
 }
@@ -437,7 +456,7 @@ uint32_t CANSimple::service_stack() {
 
     for (size_t i = 0; i < kCanAxisCount; ++i) {
         Axis& axis = axes[i];
-        std::array<periodic, 10> periodics = {{
+        std::array<periodic, 11> periodics = {{
             {axis.config_.can.heartbeat_rate_ms, axis.can_.last_heartbeat, &CANSimple::send_heartbeat},
             {axis.config_.can.encoder_rate_ms, axis.can_.last_encoder, &CANSimple::get_encoder_estimates_callback},
             {axis.config_.can.motor_error_rate_ms, axis.can_.last_motor_error, &CANSimple::get_motor_error_callback},
@@ -448,6 +467,7 @@ uint32_t CANSimple::service_stack() {
             {axis.config_.can.iq_rate_ms, axis.can_.last_iq, &CANSimple::get_iq_callback},
             {axis.config_.can.sensorless_rate_ms, axis.can_.last_sensorless, &CANSimple::get_sensorless_estimates_callback},
             {axis.config_.can.bus_vi_rate_ms, axis.can_.last_bus_vi, &CANSimple::get_bus_voltage_current_callback},
+            {axis.config_.can.temperature_rate_ms, axis.can_.last_temperature, &CANSimple::get_temperature_callback},
         }};
 
         MEASURE_TIME(axis.task_times_.can_heartbeat) {

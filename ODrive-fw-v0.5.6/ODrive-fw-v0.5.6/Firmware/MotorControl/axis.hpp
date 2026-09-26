@@ -64,6 +64,7 @@ public:
         uint32_t iq_rate_ms = 0;
         uint32_t sensorless_rate_ms = 0;
         uint32_t bus_vi_rate_ms = 0;
+        uint32_t temperature_rate_ms = 0;  // Get_Temperature (0x1F); 0 = off (docs/specs/xdrive_can.md §5)
     };
 
     struct Config_t {
@@ -117,6 +118,7 @@ public:
         uint32_t last_iq = 0;
         uint32_t last_sensorless = 0;
         uint32_t last_bus_vi = 0;
+        uint32_t last_temperature = 0;
     };
 
     Axis(int axis_num,
