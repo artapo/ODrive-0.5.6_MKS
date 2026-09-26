@@ -37,8 +37,13 @@ class CANSimple {
         MSG_SET_VEL_GAINS,
         MSG_GET_ADC_VOLTAGE,
         MSG_GET_CONTROLLER_ERROR,
+        MSG_GET_IDENTITY,     // 0x1E: serial + XDRIVE_CAN_VERSION (docs/specs/xdrive_can.md §4)
+        MSG_GET_TEMPERATURE,  // 0x1F: FET + motor temperature (§5)
         MSG_CO_HEARTBEAT_CMD = 0x700,  // CANOpen NMT Heartbeat  SEND
     };
+
+    static_assert(MSG_GET_IDENTITY == 0x1E && MSG_GET_TEMPERATURE == 0x1F, "CAN IDs in the spec");
+    static constexpr uint16_t XDRIVE_CAN_VERSION = 1;  // bump on any change to docs/specs/xdrive_can.md
 
     CANSimple(CanBusBase* canbus) : canbus_(canbus) {}
 
@@ -64,6 +69,7 @@ class CANSimple {
     bool get_iq_callback(const Axis& axis);
     bool get_sensorless_estimates_callback(const Axis& axis);
     bool get_bus_voltage_current_callback(const Axis& axis);
+    bool get_identity_callback(const Axis& axis);
     // msg.rtr bit must NOT be set
     bool get_adc_voltage_callback(const Axis& axis, const can_Message_t& msg);
 
