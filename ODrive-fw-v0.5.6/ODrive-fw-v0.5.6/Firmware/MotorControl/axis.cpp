@@ -76,6 +76,7 @@ static void step_cb_wrapper(void* ctx) {
 
 bool Axis::apply_config() {
     config_.parent = this;
+    mechanical_brake_.config_.parent = &mechanical_brake_;
     decode_step_dir_pins();
     watchdog_feed();
     return true;
@@ -442,7 +443,7 @@ bool Axis::run_homing() {
 
 bool Axis::run_idle_loop() {
     last_drv_fault_ = motor_.gate_driver_.get_error();
-    mechanical_brake_.wait_and_engage();
+    mechanical_brake_.engage();
     set_step_dir_active(config_.enable_step_dir && config_.step_dir_always_on);
     while (requested_state_ == AXIS_STATE_UNDEFINED) {
         motor_.setup();

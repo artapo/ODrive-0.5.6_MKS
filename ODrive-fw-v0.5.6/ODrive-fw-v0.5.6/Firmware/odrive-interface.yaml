@@ -1420,7 +1420,7 @@ interfaces:
         attributes:
           gpio_num: {type: uint16, c_setter: set_gpio_num}
           is_active_low: bool
-          release_delay_ms: {type: uint32, unit: ms, doc: "Brake release to PWM on. Values below 20 are treated as 20."}
+          release_delay_ms: {type: uint32, unit: ms, doc: "Brake release to PWM on. Clamped to 20..100."}
           engage_delay_ms: {type: uint32, unit: ms, doc: "Disarm to brake engage. Values above 30 are treated as 30."}
     functions:
       engage:

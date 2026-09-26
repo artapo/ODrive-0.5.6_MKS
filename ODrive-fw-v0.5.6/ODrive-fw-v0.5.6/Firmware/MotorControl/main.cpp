@@ -254,6 +254,10 @@ void vApplicationStackOverflowHook(xTaskHandle *pxTask, signed portCHAR *pcTaskN
     for(auto& axis: axes){
         axis.motor_.disarm();
     }
+    // All motors are disarmed: the phase-shorting brake relays may close right away.
+    for(auto& axis: axes){
+        axis.mechanical_brake_.engage_immediately();
+    }
     safety_critical_disarm_brake_resistor();
     for (;;); // TODO: safe action
 }
