@@ -66,7 +66,11 @@ void CANSimple::handle_can_message(const can_Message_t& msg) {
 
 void CANSimple::do_command(Axis& axis, const can_Message_t& msg) {
     const uint32_t cmd = get_cmd_id(msg.id);
-    axis.watchdog_feed();
+    // Only the command stream feeds the watchdog: a master whose control loop stalled but
+    // still sends requests must not keep the drive armed (docs/specs/xdrive_can.md §6).
+    if (cmd == MSG_SET_INPUT_POS || cmd == MSG_SET_INPUT_VEL || cmd == MSG_SET_INPUT_TORQUE) {
+        axis.watchdog_feed();
+    }
     switch (cmd) {
         case MSG_CO_NMT_CTRL:
             break;
