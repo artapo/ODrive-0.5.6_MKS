@@ -500,7 +500,8 @@ bool CANSimple::send_heartbeat(const Axis& axis) {
     can_setSignal(txmsg, uint8_t(axis.current_state_), 32, 8, true);
 
     // Motor flags
-    uint8_t motorFlags = axis.motor_.error_ != 0;
+    // bit 1: mechanical brake released (docs/specs/xdrive_can.md §7)
+    uint8_t motorFlags = uint8_t(axis.motor_.error_ != 0) | uint8_t(axis.mechanical_brake_.released_ << 1);
 
     // Encoder flags
     uint8_t encoderFlags = axis.encoder_.error_ != 0;

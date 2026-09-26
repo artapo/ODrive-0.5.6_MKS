@@ -193,7 +193,11 @@ Motor::Motor(TIM_HandleTypeDef* timer,
  * @returns: True on success, false otherwise
  */
 bool Motor::arm(PhaseControlLaw<3>* control_law) {
-    axis_->mechanical_brake_.release();
+    // Relays must be open before PWM starts (docs/specs/xdrive_can.md §7). Re-sync with the
+    // control loop after the wait, as the callers did before calling arm().
+    if (axis_->mechanical_brake_.release_and_wait()) {
+        axis_->wait_for_control_iteration();
+    }
 
     CRITICAL_SECTION() {
         control_law_ = control_law;
