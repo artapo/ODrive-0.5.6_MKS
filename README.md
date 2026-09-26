@@ -27,6 +27,16 @@ DFU switch on, power-cycle, then `tools/flash.sh <board>`. Saved configuration (
 - `Board/v3/board.cpp`: boot with fake OTP when the OTP board version doesn't match (MKS boards would hang).
 - `v3.6-56V-MKS-S` board (`-DMKS_ODRIVE_S`): only the M0 power stage exists; axis1 is never set up, checked or armed.
 - `Firmware/autogen/version.c` is committed (its generator is disabled); it must keep reporting 0.5.6 for odrivetool.
+- CAN contract for the ODrive_Motion project (`docs/specs/xdrive_can.md` in the parent repo),
+  all off unless configured:
+  - `Get_Identity` (0x1E, RTR): 48-bit serial + contract version (1).
+  - `Get_Temperature` (0x1F): FET + motor temperature, cyclic via `axis.config.can.temperature_rate_ms`.
+  - Watchdog is fed only by `Set_Input_Pos/Vel/Torque`.
+  - Single-axis boards (`MKS_ODRIVE_S`): axis1 is not on the CAN bus.
+  - Mechanical brake: `release_delay_ms` (default 30, min 20) before PWM and
+    `engage_delay_ms` (default 20, max 30) before engaging; state in heartbeat motor flags bit 1.
+- New config fields change the saved-config layout: `odrivetool backup-config` before
+  flashing, `restore-config` after.
 
 ## License
 
