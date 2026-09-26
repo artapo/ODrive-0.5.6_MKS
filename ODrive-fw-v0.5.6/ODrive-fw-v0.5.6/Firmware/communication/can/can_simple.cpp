@@ -4,8 +4,16 @@
 #include <odrive_main.h>
 #include <functional>
 
+// Axes that exist on the CAN bus. Single-axis boards (MKS ODrive S; XDrive Mini later) have
+// no M1 power stage, so axis1 must not show up on the bus at all (docs/specs/xdrive_can.md §8).
+#ifdef MKS_ODRIVE_S
+static constexpr size_t kCanAxisCount = 1;
+#else
+static constexpr size_t kCanAxisCount = AXIS_COUNT;
+#endif
+
 bool CANSimple::init() {
-    for (size_t i = 0; i < AXIS_COUNT; ++i) {
+    for (size_t i = 0; i < kCanAxisCount; ++i) {
         if (!renew_subscription(i)) {
             return false;
         }
@@ -47,7 +55,8 @@ void CANSimple::handle_can_message(const can_Message_t& msg) {
     // 6 bits | 5 bits
     uint32_t nodeID = get_node_id(msg.id);
 
-    for (auto& axis : axes) {
+    for (size_t i = 0; i < kCanAxisCount; ++i) {
+        Axis& axis = axes[i];
         if ((axis.config_.can.node_id == nodeID) && (axis.config_.can.is_extended == msg.isExt)) {
             do_command(axis, msg);
             return;
@@ -392,7 +401,7 @@ uint32_t CANSimple::service_stack() {
     uint32_t now = HAL_GetTick();
 
     // TODO: remove this polling loop and replace with protocol hook
-    for (size_t i = 0; i < AXIS_COUNT; ++i) {
+    for (size_t i = 0; i < kCanAxisCount; ++i) {
         bool node_id_changed = (axes[i].config_.can.node_id != node_ids_[i]) || (axes[i].config_.can.is_extended != extended_node_ids_[i]);
         if (node_id_changed) {
             renew_subscription(i);
@@ -405,7 +414,8 @@ uint32_t CANSimple::service_stack() {
         bool (CANSimple::* callback)(const Axis& axis);
     };
 
-    for (auto& axis : axes) {
+    for (size_t i = 0; i < kCanAxisCount; ++i) {
+        Axis& axis = axes[i];
         std::array<periodic, 10> periodics = {{
             {axis.config_.can.heartbeat_rate_ms, axis.can_.last_heartbeat, &CANSimple::send_heartbeat},
             {axis.config_.can.encoder_rate_ms, axis.can_.last_encoder, &CANSimple::get_encoder_estimates_callback},
