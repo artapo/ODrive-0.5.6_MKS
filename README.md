@@ -20,7 +20,9 @@ Output: `builds/ODrive-fw-v0.5.6-<board>.{bin,hex,elf}`. In VS Code: `Ctrl+Shift
 
 Needs dfu-util, not included: download `dfu-util-0.11-binaries` from https://dfu-util.sourceforge.net/releases/ and copy `win64/dfu-util-static.exe` to `tools/`. On Windows the STM32 bootloader may also need the WinUSB driver (Zadig).
 
-DFU switch on, power-cycle, then `tools/flash.sh <board>`. Saved configuration (NVM) is preserved.
+`tools/flash.sh <board>` with the board on USB: the script sends `sd` on the ASCII port and the firmware
+reboots into the STM32 DFU bootloader by itself (no motor armed), then restarts after flashing.
+Firmware without `sd`, or a board that does not answer: DFU switch on, power-cycle, then the same command. Saved configuration (NVM) is preserved.
 
 ## Changes vs official ODrive fw-v0.5.6
 
