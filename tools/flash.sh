@@ -14,7 +14,8 @@ BIN="$ROOT/builds/ODrive-fw-v0.5.6-${1:-v3.6-56V-MKS-S}.bin"
 [ -f "$BIN" ] || { echo "no firmware: run tools/build.sh first"; exit 1; }
 
 # 0483:df11 = STM32 system bootloader. "Found DFU": the bare ID also shows up while the WinUSB driver is still loading.
-in_dfu() { "$DFU" -l 2>/dev/null | grep -q "Found DFU: \[0483:df11\]"; }
+dfu_alt0() { "$DFU" -l 2>/dev/null | grep "Found DFU: \[0483:df11\].*alt=0" || true; }
+in_dfu() { [ -n "$(dfu_alt0)" ]; }
 
 # Not in DFU: ask the running firmware over its ASCII port ("sd", refused while a motor is armed). No DFU switch needed.
 if ! in_dfu; then
@@ -32,6 +33,11 @@ if ! in_dfu; then
     echo "(If the board is in DFU but not listed: install the WinUSB driver for 'STM32 BOOTLOADER' with Zadig.)"
     exit 1
 fi
+
+# Every STM32 ROM uses 0483:df11. Flash only a single board whose flash map is the F405's 1 MB
+# (another MCU on the same PC, e.g. an F446 with 03*128Kg, would otherwise get this image).
+[ "$(dfu_alt0 | wc -l)" = 1 ] || { echo "More than one board in DFU mode: leave only the ODrive. Nothing flashed."; exit 1; }
+dfu_alt0 | grep -q '07\*128Kg' || { echo "The board in DFU mode is not an ODrive (F405, 1 MB flash). Nothing flashed."; exit 1; }
 
 "$DFU" -d 0483:df11 -a 0 -s 0x08000000:leave -D "$BIN"
 echo "Flashed and restarted. If the DFU switch was used, return it to RUN before the next power-up."
