@@ -13,9 +13,13 @@ cd "$FW"
 [ -f tup.config ] || cp tup.config.default tup.config   # tup.config is gitignored upstream
 mkdir -p build/obj autogen                               # ditto; tup won't create them
 sed -i "s/^#\?CONFIG_BOARD_VERSION=.*/CONFIG_BOARD_VERSION=$BOARD/" tup.config
+# Build stamp, printed by the ASCII "sb" command: tells which image a board is running (fw_version is always 0.5.6).
+STAMP="$(date '+%Y-%m-%d %H:%M:%S') $(git -C "$ROOT" describe --tags --always --dirty)"
+printf 'const char fw_build_stamp_[] = "%s";\n' "$STAMP" > autogen/build_stamp.c
 tup --no-environ-check || tup --no-environ-check   # retry once: Windows file locks on .tup/tmp fail jobs intermittently
 
 mkdir -p "$ROOT/builds"
+echo "$STAMP" > "$ROOT/builds/ODrive-fw-v0.5.6-$BOARD.stamp"   # flash.sh checks the board against it
 for ext in bin hex elf; do
     cp "build/ODriveFirmware.$ext" "$ROOT/builds/ODrive-fw-v0.5.6-$BOARD.$ext"
 done

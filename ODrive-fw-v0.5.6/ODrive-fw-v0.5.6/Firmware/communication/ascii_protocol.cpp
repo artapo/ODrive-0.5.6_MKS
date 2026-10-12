@@ -334,6 +334,9 @@ void AsciiProtocol::cmd_system_ctrl(char * pStr, bool use_checksum) {
         case 'e':   odrv.erase_configuration(); break;  // Erase config
         case 'r':   odrv.reboot();              break;  // Reboot
         case 'c':   odrv.clear_errors();        break;  // clear all errors and rearm brake resistor if necessary
+        // Build stamp: which image is running (date, time, git commit). Own command, one line: over USB only
+        // the first line of a multi-line reply such as "i" arrives.
+        case 'b':   respond(use_checksum, "Build: %s", fw_build_stamp_); break;
         case 'd':   // Enter DFU (STM32 ROM bootloader) without the DFU switch. Refused while a motor is armed: the
                     // reset cuts motor control. (Not a state check: on MKS_ODRIVE_S axis1 never leaves UNDEFINED.)
             for (size_t i = 0; i < AXIS_COUNT; ++i) {

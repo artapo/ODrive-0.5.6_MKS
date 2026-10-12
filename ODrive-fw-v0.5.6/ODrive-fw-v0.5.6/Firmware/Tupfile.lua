@@ -100,7 +100,8 @@ odrive_firmware_pkg = {
         'communication/interface_usb.cpp',
         'communication/interface_i2c.cpp',
         'FreeRTOS-openocd.c',
-        'autogen/version.c'
+        'autogen/version.c',
+        'autogen/build_stamp.c'  -- written by tools/build.sh on every build (gitignored)
     }
 }
 

@@ -161,6 +161,7 @@ extern const unsigned char fw_version_major_;
 extern const unsigned char fw_version_minor_;
 extern const unsigned char fw_version_revision_;
 extern const unsigned char fw_version_unreleased_;
+extern const char fw_build_stamp_[];  // autogen/build_stamp.c: "<date> <time> <git describe>"
 }
 
 static Stm32Gpio get_gpio(size_t gpio_num) {

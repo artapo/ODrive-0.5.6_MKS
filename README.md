@@ -22,7 +22,9 @@ Needs dfu-util, not included: download `dfu-util-0.11-binaries` from https://dfu
 
 `tools/flash.sh <board>` with the board on USB: the script sends `sd` on the ASCII port and the firmware
 reboots into the STM32 DFU bootloader by itself (no motor armed), then restarts after flashing.
-Firmware without `sd`, or a board that does not answer: DFU switch on, power-cycle, then the same command. Saved configuration (NVM) is preserved.
+Firmware without `sd`, or a board that does not answer: DFU switch on, power-cycle, then the same command.
+`build.sh` stamps each image (date, time, `git describe`); the ASCII command `sb` prints it and `flash.sh`
+checks the board against it after flashing. Saved configuration (NVM) is preserved.
 
 ## Changes vs official ODrive fw-v0.5.6
 
