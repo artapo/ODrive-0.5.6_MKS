@@ -491,7 +491,8 @@ bool Motor::measure_phase_inductance(float test_voltage) {
     config_.phase_inductance = control_law.get_inductance();
     
     // TODO arbitrary values set for now
-    if (!(config_.phase_inductance >= 2e-6f && config_.phase_inductance <= 4000e-6f)) {
+    // Teto 4 mH -> 15 mH: ficha 9,5 mH +20 % (A2M-80SV02430, nao confirmada no motor da bancada); medido 7,16 mH.
+    if (!(config_.phase_inductance >= 2e-6f && config_.phase_inductance <= 15000e-6f)) {
         error_ |= ERROR_PHASE_INDUCTANCE_OUT_OF_RANGE;
         success = false;
     }
