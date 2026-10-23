@@ -148,6 +148,8 @@ public:
 
     void watchdog_feed();
     bool watchdog_check();
+    void hold(uint32_t ms);
+    void hold_end() { hold_ticks_ = 0; }
 
     // True if there are no errors
     bool inline check_for_errors() {
@@ -210,6 +212,8 @@ public:
 
     // watchdog
     uint32_t watchdog_current_value_= 0;
+    // Hold (docs/specs/master_flash.md 5.1): ticks of the control loop in which an idle axis does not expire
+    volatile uint32_t hold_ticks_ = 0;
 };
 
 

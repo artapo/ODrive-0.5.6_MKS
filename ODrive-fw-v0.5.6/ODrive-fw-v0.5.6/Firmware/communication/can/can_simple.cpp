@@ -70,6 +70,7 @@ void CANSimple::do_command(Axis& axis, const can_Message_t& msg) {
     // still sends requests must not keep the drive armed (docs/specs/xdrive_can.md §6).
     if (!msg.rtr && (cmd == MSG_SET_INPUT_POS || cmd == MSG_SET_INPUT_VEL || cmd == MSG_SET_INPUT_TORQUE)) {
         axis.watchdog_feed();
+        axis.hold_end();  // the first command after a Hold ends it (master_flash.md 5.1)
     }
     switch (cmd) {
         case MSG_CO_NMT_CTRL:
@@ -101,7 +102,7 @@ void CANSimple::do_command(Axis& axis, const can_Message_t& msg) {
             set_axis_requested_state_callback(axis, msg);
             break;
         case MSG_SET_AXIS_STARTUP_CONFIG:
-            set_axis_startup_config_callback(axis, msg);
+            hold_callback(axis, msg);  // 0x08 is Hold here, not Set_Axis_Startup_Config
             break;
         case MSG_GET_ENCODER_ESTIMATES:
             if (msg.rtr || msg.len == 0)
@@ -248,8 +249,10 @@ void CANSimple::set_axis_requested_state_callback(Axis& axis, const can_Message_
     axis.requested_state_ = static_cast<Axis::AxisState>(can_getSignal<int32_t>(msg, 0, 32, true));
 }
 
-void CANSimple::set_axis_startup_config_callback(Axis& axis, const can_Message_t& msg) {
-    // Not Implemented
+// Hold (M -> X, 0x08, len 2): bytes 0-1 = ms, u16 little-endian. Data frames of the right length only.
+void CANSimple::hold_callback(Axis& axis, const can_Message_t& msg) {
+    if (msg.rtr || msg.len != 2) return;
+    axis.hold(can_getSignal<uint16_t>(msg, 0, 16, true));
 }
 
 bool CANSimple::get_encoder_estimates_callback(const Axis& axis) {

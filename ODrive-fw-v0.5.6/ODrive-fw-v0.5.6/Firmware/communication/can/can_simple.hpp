@@ -15,7 +15,7 @@ class CANSimple {
         MSG_GET_SENSORLESS_ERROR,
         MSG_SET_AXIS_NODE_ID,
         MSG_SET_AXIS_REQUESTED_STATE,
-        MSG_SET_AXIS_STARTUP_CONFIG,
+        MSG_SET_AXIS_STARTUP_CONFIG,  // 0x08: Hold in this fork (docs/specs/xdrive_can.md, master_flash.md 5.1)
         MSG_GET_ENCODER_ESTIMATES,
         MSG_GET_ENCODER_COUNT,
         MSG_SET_CONTROLLER_MODES,
@@ -43,7 +43,7 @@ class CANSimple {
     };
 
     static_assert(MSG_GET_IDENTITY == 0x1E && MSG_GET_TEMPERATURE == 0x1F, "CAN IDs in the spec");
-    static constexpr uint16_t XDRIVE_CAN_VERSION = 1;  // bump on any change to docs/specs/xdrive_can.md
+    static constexpr uint16_t XDRIVE_CAN_VERSION = 2;  // bump on any change to docs/specs/xdrive_can.md
 
     CANSimple(CanBusBase* canbus) : canbus_(canbus) {}
 
@@ -77,7 +77,7 @@ class CANSimple {
     // Set functions
     static void set_axis_nodeid_callback(Axis& axis, const can_Message_t& msg);
     static void set_axis_requested_state_callback(Axis& axis, const can_Message_t& msg);
-    static void set_axis_startup_config_callback(Axis& axis, const can_Message_t& msg);
+    static void hold_callback(Axis& axis, const can_Message_t& msg);
     static void set_input_pos_callback(Axis& axis, const can_Message_t& msg);
     static void set_input_vel_callback(Axis& axis, const can_Message_t& msg);
     static void set_input_torque_callback(Axis& axis, const can_Message_t& msg);

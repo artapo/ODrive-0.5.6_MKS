@@ -172,6 +172,16 @@ void Axis::watchdog_feed() {
 bool Axis::watchdog_check() {
     if (!config_.enable_watchdog) return true;
 
+    // Hold counts down on its own; it only suppresses the expiry while the axis is idle, so an axis that is armed
+    // (closed loop requested during the hold) keeps the normal watchdog.
+    if (hold_ticks_ > 0) {
+        hold_ticks_ = hold_ticks_ - 1;
+        if (current_state_ == AXIS_STATE_IDLE) {
+            watchdog_feed();
+            return true;
+        }
+    }
+
     // explicit check here to ensure that we don't underflow back to UINT32_MAX
     if (watchdog_current_value_ > 0) {
         watchdog_current_value_--;
@@ -179,6 +189,15 @@ bool Axis::watchdog_check() {
     } else {
         error_ |= ERROR_WATCHDOG_TIMER_EXPIRED;
         return false;
+    }
+}
+
+// @brief Master is about to stall (flash write): go to idle and hold the watchdog for ms (<= 1000).
+void Axis::hold(uint32_t ms) {
+    if (ms > 1000) ms = 1000;
+    CRITICAL_SECTION() {
+        if (current_state_ != AXIS_STATE_IDLE) requested_state_ = AXIS_STATE_IDLE;
+        hold_ticks_ = ms * (current_meas_hz / 1000);
     }
 }
 
